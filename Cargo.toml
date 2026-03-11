@@ -43,9 +43,18 @@ doc_markdown = "allow"                  # Allow markdown formatting
 [lints.rust]
 missing_docs = "allow" # Allow missing docs at rust level
 
+[lib]
+name = "bgutil_ytdlp_pot_provider"
+path = "src/lib.rs"
+# When the `ffi` feature is enabled, also compile as a C dynamic library (cdylib)
+# for use via FFI from other languages (Java, Python, C#, Go, etc.)
+crate-type = ["lib", "cdylib"]
+
 [features]
 # Use vendored OpenSSL for cross-compilation targets
 vendored-openssl = ["openssl/vendored"]
+# Enable FFI (C dynamic library) support for multi-language integration
+ffi = []
 
 [dependencies]
 # Dependencies

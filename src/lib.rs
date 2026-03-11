@@ -48,6 +48,8 @@
 pub mod cli;
 pub mod config;
 pub mod error;
+#[cfg(feature = "ffi")]
+pub mod ffi;
 pub mod server;
 pub mod session;
 pub mod types;

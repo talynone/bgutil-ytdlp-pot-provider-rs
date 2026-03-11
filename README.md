@@ -89,6 +89,9 @@ cargo build --release
 
 # Option 2: Build and install to ~/.cargo/bin (recommended)
 cargo install --path .
+
+# Option 3: Build as a dynamic library for FFI integration
+cargo build --release --features ffi
 ```
 
 #### Option C: Container (Docker/Podman)
@@ -327,6 +330,22 @@ You should see output similar to:
 ```text
 [debug] [youtube] [pot] PO Token Providers: bgutil:http-1.2.2 (external), bgutil:script-1.2.2 (external)
 ```
+
+### FFI / Dynamic Library Mode
+
+For integration with other programming languages (Java, Python, C#, Go, etc.), you can compile this project as a C dynamic library:
+
+```bash
+# Build with FFI support
+cargo build --release --features ffi
+```
+
+This produces a shared library (`libbgutil_ytdlp_pot_provider.so` / `.dylib` / `.dll`) that exports two functions:
+
+- `ffi_generate()` — Generate a POT token, returns JSON string
+- `ffi_free_string()` — Free a string returned by `ffi_generate()`
+
+For detailed usage, API reference, and language-specific examples (Java/JNA, Python/ctypes, C#/P/Invoke, Go/cgo), see the **[FFI Guide](docs/ffi-guide.md)**.
 
 ## Troubleshooting
 
