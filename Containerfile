@@ -11,7 +11,7 @@ ARG NAME=bgutil-pot
 ########################################
 # Chef base stage
 ########################################
-FROM docker.io/lukemathwalker/cargo-chef:latest-rust-1.89.0-slim AS chef
+FROM docker.io/lukemathwalker/cargo-chef:latest-rust-slim AS chef
 WORKDIR /app
 
 # Create directories with correct permissions
@@ -51,10 +51,12 @@ ARG TARGETARCH
 ARG TARGETVARIANT
 RUN --mount=type=cache,id=apt-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/cache/apt \
     --mount=type=cache,id=aptlists-$TARGETARCH$TARGETVARIANT,sharing=locked,target=/var/lib/apt/lists \
-    # dependencies for git2-rs and other system libs
+    # dependencies for building the project and vendored OpenSSL
     apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev \
+    perl \
+    make \
     curl && \
     # Install cross-compilation tools for aarch64 if needed
     if [ "${TARGETARCH}" = "arm64" ]; then \
@@ -66,7 +68,7 @@ ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
 
 RUN --mount=source=/app/recipe.json,target=recipe.json,from=planner \
     RUST_TARGET=$(cat /tmp/rust-target) && \
-    cargo chef cook --release --target ${RUST_TARGET} --recipe-path recipe.json --all-targets --locked
+    cargo chef cook --release --target ${RUST_TARGET} --recipe-path recipe.json --features vendored-openssl --all-targets --locked
 
 ########################################
 # Test stage
@@ -82,7 +84,7 @@ RUN --mount=source=src,target=src,z \
     --mount=source=Cargo.lock,target=Cargo.lock,z \
     --mount=source=.config/nextest.toml,target=.config/nextest.toml,z \
     RUST_TARGET=$(cat /tmp/rust-target) && \
-    cargo nextest run --release --target ${RUST_TARGET} --all-targets --locked
+    cargo nextest run --release --target ${RUST_TARGET} --features vendored-openssl --all-targets --locked
 
 ########################################
 # Builder stage
@@ -96,7 +98,7 @@ RUN --mount=source=src,target=src,z \
     --mount=source=Cargo.toml,target=Cargo.toml,z \
     --mount=source=Cargo.lock,target=Cargo.lock,z \
     RUST_TARGET=$(cat /tmp/rust-target) && \
-    cargo build --release --target ${RUST_TARGET} --bin ${NAME} --locked
+    cargo build --release --target ${RUST_TARGET} --bin ${NAME} --features vendored-openssl --locked
 
 ########################################
 # Compress stage
