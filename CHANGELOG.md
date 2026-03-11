@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-03-11
+
+### Added
+
+- Added: C-compatible FFI (cdylib) module behind the `ffi` feature flag, enabling other languages (Java, Python, C#, Go, etc.) to use POT token generation by loading the compiled shared library (#106)
+- Added: `ffi_generate()` function for POT token generation via FFI with JSON error return — no panics across the FFI boundary, invalid UTF-8 handled gracefully
+- Added: `ffi_free_string()` function for proper memory deallocation of FFI-returned strings
+- Added: Comprehensive FFI documentation and multi-language usage guide in `docs/ffi-guide.md`
+- Added: Platform-specific shared libraries (`.so`/`.dll`/`.dylib`) included in release pipeline alongside CLI binaries, with artifact attestations (#107)
+
 ## [0.7.2] - 2026-02-21
 
 ### Fixed
@@ -312,7 +322,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added comprehensive input validation and sanitization
 - Enhanced token generation security using authentic BotGuard integration
 
-[Unreleased]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.6.4...v0.7.0
