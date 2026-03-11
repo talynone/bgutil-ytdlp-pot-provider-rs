@@ -140,7 +140,7 @@ jobs:
         echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
 
     - name: Build
-      run: cargo build --release --target ${{ matrix.target }} ${{ matrix.extra_features }}
+      run: cargo build --release --target ${{ matrix.target }} --features ffi ${{ matrix.extra_features }}
 
     - name: Package and Upload Assets
       shell: bash
@@ -159,18 +159,35 @@ jobs:
         if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
           chmod +x $ASSET
         fi
+        
+        # Define FFI shared library names based on OS
+        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          LIB_NAME="bgutil_ytdlp_pot_provider.dll"
+          LIB_ASSET="bgutil_ytdlp_pot_provider-${{ matrix.platform }}.dll"
+        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          LIB_NAME="libbgutil_ytdlp_pot_provider.dylib"
+          LIB_ASSET="libbgutil_ytdlp_pot_provider-${{ matrix.platform }}.dylib"
+        else
+          LIB_NAME="libbgutil_ytdlp_pot_provider.so"
+          LIB_ASSET="libbgutil_ytdlp_pot_provider-${{ matrix.platform }}.so"
+        fi
+        
+        # Copy FFI shared library
+        cp target/${{ matrix.target }}/release/$LIB_NAME $LIB_ASSET
 
     - name: Generate artifact attestation
       uses: actions/attest-build-provenance@v2
       with:
         subject-path: |
           bgutil-pot-${{ matrix.platform }}*
+          *bgutil_ytdlp_pot_provider-${{ matrix.platform }}*
 
     - name: Upload Release Assets
       uses: softprops/action-gh-release@v2
       with:
         files: |
           bgutil-pot-${{ matrix.platform }}*
+          *bgutil_ytdlp_pot_provider-${{ matrix.platform }}*
 
   publish-crates:
     name: Publish to crates.io
