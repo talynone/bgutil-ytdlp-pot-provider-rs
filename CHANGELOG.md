@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-03-12
+
+### Fixed
+
+- Fixed: Container build on Debian Trixie (latest-rust-slim) by enabling vendored OpenSSL compilation from source, resolving static linking failures caused by system OpenSSL 3.5.x zstd/zlib transitive dependencies
+
+### Changed
+
+- Changed: Container base image unpinned from `rust-1.89.0-slim` to `latest-rust-slim` to always use the latest Rust toolchain
+
 ## [0.8.0] - 2026-03-11
 
 ### Added
@@ -322,7 +332,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added comprehensive input validation and sanitization
 - Enhanced token generation security using authentic BotGuard integration
 
-[Unreleased]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/jim60105/bgutil-ytdlp-pot-provider-rs/compare/v0.7.0...v0.7.1
