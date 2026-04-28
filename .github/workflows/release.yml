@@ -113,6 +113,11 @@ jobs:
           target: x86_64-pc-windows-msvc
           platform: windows-x86_64
           extra_features: ""
+        # Windows ARM64
+        - os: windows-11-arm
+          target: aarch64-pc-windows-msvc
+          platform: windows-aarch64
+          extra_features: ""
         # macOS x86_64
         - os: macos-latest
           target: x86_64-apple-darwin
@@ -146,22 +151,22 @@ jobs:
       shell: bash
       run: |
         # Define binary names based on OS
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+        if [[ "${{ matrix.os }}" == windows-* ]]; then
           BIN="bgutil-pot.exe"
           ASSET="bgutil-pot-${{ matrix.platform }}.exe"
         else
           BIN="bgutil-pot"
           ASSET="bgutil-pot-${{ matrix.platform }}"
         fi
-        
+
         # Copy and prepare binary
         cp target/${{ matrix.target }}/release/$BIN $ASSET
-        if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
+        if [[ "${{ matrix.os }}" != windows-* ]]; then
           chmod +x $ASSET
         fi
-        
+
         # Define FFI shared library names based on OS
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+        if [[ "${{ matrix.os }}" == windows-* ]]; then
           LIB_NAME="bgutil_ytdlp_pot_provider.dll"
           LIB_ASSET="bgutil_ytdlp_pot_provider-${{ matrix.platform }}.dll"
         elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
