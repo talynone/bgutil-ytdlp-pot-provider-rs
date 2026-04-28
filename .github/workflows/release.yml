@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -11,6 +12,7 @@ permissions:
 jobs:
   create-release:
     name: Create Release
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -113,6 +115,11 @@ jobs:
           target: x86_64-pc-windows-msvc
           platform: windows-x86_64
           extra_features: ""
+        # Windows ARM64
+        - os: windows-11-arm
+          target: aarch64-pc-windows-msvc
+          platform: windows-aarch64
+          extra_features: ""
         # macOS x86_64
         - os: macos-latest
           target: x86_64-apple-darwin
@@ -146,22 +153,22 @@ jobs:
       shell: bash
       run: |
         # Define binary names based on OS
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+        if [[ "${{ matrix.os }}" == windows-* ]]; then
           BIN="bgutil-pot.exe"
           ASSET="bgutil-pot-${{ matrix.platform }}.exe"
         else
           BIN="bgutil-pot"
           ASSET="bgutil-pot-${{ matrix.platform }}"
         fi
-        
+
         # Copy and prepare binary
         cp target/${{ matrix.target }}/release/$BIN $ASSET
-        if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
+        if [[ "${{ matrix.os }}" != windows-* ]]; then
           chmod +x $ASSET
         fi
-        
+
         # Define FFI shared library names based on OS
-        if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+        if [[ "${{ matrix.os }}" == windows-* ]]; then
           LIB_NAME="bgutil_ytdlp_pot_provider.dll"
           LIB_ASSET="bgutil_ytdlp_pot_provider-${{ matrix.platform }}.dll"
         elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
@@ -176,13 +183,24 @@ jobs:
         cp target/${{ matrix.target }}/release/$LIB_NAME $LIB_ASSET
 
     - name: Generate artifact attestation
+      if: github.event_name == 'push'
       uses: actions/attest-build-provenance@v2
       with:
         subject-path: |
           bgutil-pot-${{ matrix.platform }}*
           *bgutil_ytdlp_pot_provider-${{ matrix.platform }}*
 
+    - name: Upload workflow artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: bgutil-pot-${{ matrix.platform }}
+        path: |
+          bgutil-pot-${{ matrix.platform }}*
+          *bgutil_ytdlp_pot_provider-${{ matrix.platform }}*
+        if-no-files-found: error
+
     - name: Upload Release Assets
+      if: github.event_name == 'push'
       uses: softprops/action-gh-release@v2
       with:
         files: |
@@ -191,6 +209,7 @@ jobs:
 
   publish-crates:
     name: Publish to crates.io
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
