@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -11,6 +12,7 @@ permissions:
 jobs:
   create-release:
     name: Create Release
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -181,13 +183,24 @@ jobs:
         cp target/${{ matrix.target }}/release/$LIB_NAME $LIB_ASSET
 
     - name: Generate artifact attestation
+      if: github.event_name == 'push'
       uses: actions/attest-build-provenance@v2
       with:
         subject-path: |
           bgutil-pot-${{ matrix.platform }}*
           *bgutil_ytdlp_pot_provider-${{ matrix.platform }}*
 
+    - name: Upload workflow artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: bgutil-pot-${{ matrix.platform }}
+        path: |
+          bgutil-pot-${{ matrix.platform }}*
+          *bgutil_ytdlp_pot_provider-${{ matrix.platform }}*
+        if-no-files-found: error
+
     - name: Upload Release Assets
+      if: github.event_name == 'push'
       uses: softprops/action-gh-release@v2
       with:
         files: |
@@ -196,6 +209,7 @@ jobs:
 
   publish-crates:
     name: Publish to crates.io
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
